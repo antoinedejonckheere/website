@@ -7,9 +7,28 @@ import i18n from "../../utils/i18n";
 import './data.css';
 
 const DataMap = () => {
+  const [mapScroll, setMapScroll] = useState(false);
 
   const mapContainerRef = useRef(null);
   const mapOverlayRef = useRef(null);
+
+  useEffect(() => {
+    document.getElementById('container').addEventListener('touchstart', function(e) {
+      // Invoke the appropriate handler depending on the 
+      // number of touch points.
+      switch (e.touches.length) {
+        case 1: 
+          setMapScroll(false);
+          break;
+        case 2: 
+          setMapScroll(true);
+          break;
+        default: 
+          setMapScroll(false); 
+          break;
+      }   
+    }, false);
+  }, [])
 
   useEffect(() => {
 
@@ -90,6 +109,13 @@ const DataMap = () => {
     }
 
     map.on('load', function () {
+      map['dragRotate'].disable();
+      if (mapScroll) 
+      {
+        map['dragPan'].enable();
+      } else {
+        map['dragPan'].disable();
+      }
       // get lowest label and road.
       let style = map.getStyle();
       let lowestRoad = undefined;
@@ -222,7 +248,7 @@ const DataMap = () => {
   }, []);
 
   return (
-    <>
+    <div id='container'>
       <section className={`${style.header} ${style.grid} ${style.content}`}>
         <p className={style.bigLetter}>{i18n.t('Data')}</p>
         <div className={style.header__wrapper}>
@@ -258,7 +284,7 @@ const DataMap = () => {
           </a>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
